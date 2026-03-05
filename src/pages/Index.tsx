@@ -8,6 +8,7 @@ import ExampleFile from "@/components/llms/ExampleFile";
 import CrossSell from "@/components/llms/CrossSell";
 import FaqSection from "@/components/llms/FaqSection";
 import MoreTools from "@/components/llms/MoreTools";
+import heroBanner from "@/assets/hero-banner.jpg";
 
 const Index = () => {
   const [result, setResult] = useState<GeneratorData | null>(null);
@@ -27,8 +28,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <section className="py-12 md:py-20">
+      {/* Hero Banner */}
+      <div className="relative w-full h-48 md:h-72 lg:h-80 overflow-hidden">
+        <img
+          src={heroBanner}
+          alt="LLMs.txt Generator - AI SEO Tool"
+          className="w-full h-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+      </div>
+
+      {/* Hero Content */}
+      <section className="pt-8 md:pt-12 pb-12 md:pb-20 -mt-16 md:-mt-24 relative z-10">
         <div className="container max-w-4xl">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-8">
