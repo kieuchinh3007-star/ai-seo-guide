@@ -9,59 +9,44 @@ interface ResultSectionProps {
   onRegenerate: () => void;
 }
 
-const CRAWLER_MAP: Record<string, string> = {
-  gptbot: "GPTBot",
-  claudebot: "ClaudeBot",
-  perplexitybot: "PerplexityBot",
-  "google-extended": "Google-Extended",
-  common: "CommonCrawl",
-};
-
-const CRAWLER_DISPLAY: Record<string, string> = {
-  gptbot: "ChatGPT",
-  claudebot: "Claude",
-  perplexitybot: "Perplexity",
-  "google-extended": "Gemini",
-  common: "Common Crawlers",
-};
-
 function generateLlmsTxt(data: GeneratorData): string {
   const lines: string[] = [];
   const name = data.websiteName || new URL(data.websiteUrl).hostname;
-  lines.push(`# ${name} AI Content Guide`);
+  lines.push(`# ${name}`);
   lines.push("");
 
   if (data.websiteDescription) {
-    lines.push(`# ${data.websiteDescription}`);
+    lines.push(`> ${data.websiteDescription}`);
     lines.push("");
   }
 
-  const allCrawlerIds = ["gptbot", "claudebot", "perplexitybot", "google-extended", "common"];
-
-  for (const id of allCrawlerIds) {
-    const agent = CRAWLER_MAP[id] || id;
-    if (data.crawlers.includes(id) && data.allowAccess) {
-      lines.push(`User-agent: ${agent}`);
-      lines.push("Allow: /");
-    } else {
-      lines.push(`User-agent: ${agent}`);
-      lines.push("Disallow: /");
-    }
-    lines.push("");
-  }
-
-  if (data.sitemapUrl) {
-    lines.push(`Sitemap: ${data.sitemapUrl}`);
-    lines.push("");
-  }
-
+  // Important pages as docs section
   const pages = data.importantPages
     .split("\n")
     .map((p) => p.trim())
     .filter(Boolean);
+
   if (pages.length > 0) {
-    lines.push("Important:");
-    pages.forEach((p) => lines.push(p));
+    lines.push("## Docs");
+    lines.push("");
+    pages.forEach((p) => {
+      // Extract page name from URL path
+      try {
+        const url = new URL(p);
+        const pageName = url.pathname.split("/").filter(Boolean).pop() || url.hostname;
+        const displayName = pageName.charAt(0).toUpperCase() + pageName.slice(1).replace(/[-_]/g, " ");
+        lines.push(`- [${displayName}](${p})`);
+      } catch {
+        lines.push(`- ${p}`);
+      }
+    });
+    lines.push("");
+  }
+
+  if (data.sitemapUrl) {
+    lines.push("## Optional");
+    lines.push("");
+    lines.push(`- [Sitemap](${data.sitemapUrl}): XML sitemap for crawling reference`);
     lines.push("");
   }
 
