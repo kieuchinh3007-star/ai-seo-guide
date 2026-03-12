@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { ChevronRight } from "lucide-react";
-import GeneratorTool, { type GeneratorData } from "@/components/llms/GeneratorTool";
+import GeneratorTool, { type CrawlResult } from "@/components/llms/GeneratorTool";
 import ResultSection from "@/components/llms/ResultSection";
 import HowToUse from "@/components/llms/HowToUse";
 import WhyUse from "@/components/llms/WhyUse";
@@ -11,10 +11,10 @@ import MoreTools from "@/components/llms/MoreTools";
 import heroBanner from "@/assets/hero-banner.jpg";
 
 const Index = () => {
-  const [result, setResult] = useState<GeneratorData | null>(null);
+  const [result, setResult] = useState<CrawlResult | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
-  const handleGenerate = (data: GeneratorData) => {
+  const handleGenerate = (data: CrawlResult) => {
     setResult(data);
     setTimeout(() => {
       resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -56,9 +56,8 @@ const Index = () => {
               LLMs.txt Generator – Free Online Tool
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Create a ready-to-use llms.txt file for your website.
-              Help AI crawlers like ChatGPT, Claude, and Perplexity
-              understand your content and improve visibility in AI search.
+              Paste your website URL — we'll scan your sitemap and generate a
+              ready-to-use llms.txt file instantly.
             </p>
             <p className="text-sm text-muted-foreground">
               LLMs.txt giúp AI hiểu nội dung website tốt hơn và ưu tiên các trang quan trọng.
