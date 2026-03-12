@@ -2,60 +2,79 @@ import { useState } from "react";
 import { Copy, Download, RefreshCw, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import type { GeneratorData } from "./GeneratorTool";
+import type { CrawlResult } from "./GeneratorTool";
 
 interface ResultSectionProps {
-  data: GeneratorData;
+  data: CrawlResult;
   onRegenerate: () => void;
 }
 
-function generateLlmsTxt(data: GeneratorData): string {
+function generateLlmsTxt(data: CrawlResult): string {
   const lines: string[] = [];
-  let baseUrl = data.websiteUrl;
-  try {
-    const u = new URL(baseUrl);
-    baseUrl = u.origin;
-  } catch { /* keep as-is */ }
-
-  const name = data.websiteName || (() => { try { return new URL(data.websiteUrl).hostname; } catch { return data.websiteUrl; } })();
 
   // # Title
-  lines.push(`# ${name}`);
+  lines.push(`# ${data.siteName}`);
   lines.push("");
 
-  // > Description (optional)
-  if (data.websiteDescription) {
-    lines.push(`> ${data.websiteDescription}`);
+  // > Description
+  if (data.description) {
+    lines.push(`> ${data.description}`);
     lines.push("");
   }
 
-  // Important pages as ## Docs
-  const pages = data.importantPages
-    .split("\n")
-    .map((p) => p.trim())
-    .filter(Boolean);
+  // Categorize pages
+  const docs: typeof data.pages = [];
+  const optional: typeof data.pages = [];
 
-  if (pages.length > 0) {
+  data.pages.forEach((page) => {
+    const path = (() => {
+      try { return new URL(page.url).pathname.toLowerCase(); } catch { return ""; }
+    })();
+
+    if (
+      path === "/" ||
+      path.includes("/doc") ||
+      path.includes("/guide") ||
+      path.includes("/tutorial") ||
+      path.includes("/api") ||
+      path.includes("/blog") ||
+      path.includes("/about") ||
+      path.includes("/feature") ||
+      path.includes("/pricing")
+    ) {
+      docs.push(page);
+    } else {
+      optional.push(page);
+    }
+  });
+
+  // If no docs categorized, put first 20 as docs
+  if (docs.length === 0) {
+    docs.push(...data.pages.slice(0, 20));
+  } else if (optional.length === 0 && docs.length > 20) {
+    optional.push(...docs.splice(20));
+  }
+
+  if (docs.length > 0) {
     lines.push("## Docs");
     lines.push("");
-    pages.forEach((p) => {
-      try {
-        const url = new URL(p);
-        const pageName = url.pathname.split("/").filter(Boolean).pop() || url.hostname;
-        const displayName = pageName.charAt(0).toUpperCase() + pageName.slice(1).replace(/[-_]/g, " ");
-        lines.push(`- [${displayName}](${p})`);
-      } catch {
-        lines.push(`- ${p}`);
-      }
+    docs.forEach((p) => {
+      lines.push(`- [${p.title}](${p.url})`);
     });
     lines.push("");
   }
 
-  // ## Optional
-  const sitemapUrl = data.sitemapUrl || `${baseUrl}/sitemap.xml`;
-  lines.push("## Optional");
-  lines.push("");
-  lines.push(`- [Sitemap](${sitemapUrl})`);
+  if (optional.length > 0) {
+    lines.push("## Optional");
+    lines.push("");
+    optional.forEach((p) => {
+      lines.push(`- [${p.title}](${p.url})`);
+    });
+    lines.push("");
+  }
+
+  // Always add sitemap
+  lines.push(`- [Sitemap](${data.websiteUrl}/sitemap.xml)`);
   lines.push("");
 
   return lines.join("\n");
@@ -85,10 +104,17 @@ const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-foreground">Generated llms.txt File</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">
+          Generated llms.txt
+        </h2>
+        <span className="text-sm text-muted-foreground">
+          {data.pages.length} trang được quét
+        </span>
+      </div>
 
       <div className="rounded-xl overflow-hidden shadow-saas-lg">
-        <pre className="bg-code text-code-foreground p-6 overflow-x-auto text-sm leading-relaxed font-mono">
+        <pre className="bg-code text-code-foreground p-6 overflow-x-auto text-sm leading-relaxed font-mono max-h-[500px] overflow-y-auto">
           {content}
         </pre>
       </div>
@@ -102,7 +128,7 @@ const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
           <Download className="h-4 w-4" /> Download file
         </Button>
         <Button onClick={onRegenerate} variant="outline" className="gap-2">
-          <RefreshCw className="h-4 w-4" /> Regenerate
+          <RefreshCw className="h-4 w-4" /> Quét lại
         </Button>
       </div>
     </div>
