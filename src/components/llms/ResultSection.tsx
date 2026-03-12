@@ -54,8 +54,7 @@ function generateLlmsTxt(data: GeneratorData): string {
 }
 
 const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
-  const [copied, setCopied] = useState(false);
-  const content = generateLlmsTxt(data);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
