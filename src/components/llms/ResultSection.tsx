@@ -18,13 +18,18 @@ function generateLlmsTxt(data: GeneratorData): string {
   } catch { /* keep as-is */ }
 
   const name = data.websiteName || (() => { try { return new URL(data.websiteUrl).hostname; } catch { return data.websiteUrl; } })();
+
+  // # Title
   lines.push(`# ${name}`);
   lines.push("");
 
-  const desc = data.websiteDescription || `${name} official website.`;
-  lines.push(`> ${desc}`);
-  lines.push("");
+  // > Description (optional)
+  if (data.websiteDescription) {
+    lines.push(`> ${data.websiteDescription}`);
+    lines.push("");
+  }
 
+  // Important pages as ## Docs
   const pages = data.importantPages
     .split("\n")
     .map((p) => p.trim())
@@ -44,20 +49,13 @@ function generateLlmsTxt(data: GeneratorData): string {
       }
     });
     lines.push("");
-  } else {
-    lines.push("## Docs");
-    lines.push("");
-    lines.push(`- [Homepage](${baseUrl})`);
-    lines.push("");
   }
 
+  // ## Optional
+  const sitemapUrl = data.sitemapUrl || `${baseUrl}/sitemap.xml`;
   lines.push("## Optional");
   lines.push("");
-  if (data.sitemapUrl) {
-    lines.push(`- [Sitemap](${data.sitemapUrl}): XML sitemap for crawling reference`);
-  } else {
-    lines.push(`- [Sitemap](${baseUrl}/sitemap.xml): XML sitemap for crawling reference`);
-  }
+  lines.push(`- [Sitemap](${sitemapUrl})`);
   lines.push("");
 
   return lines.join("\n");

@@ -2,20 +2,18 @@ const EXAMPLE = `# Acme Corp
 
 > Acme Corp is an analytics platform that tracks website performance, SEO rankings, and AI search visibility across multiple channels.
 
+Acme Corp provides tools for developers and marketers to optimize their online presence.
+
 ## Docs
 
 - [Quick start guide](https://acme.com/docs/quickstart): Getting started with Acme Corp in 5 minutes
 - [API reference](https://acme.com/docs/api): Complete REST API documentation
 - [Blog](https://acme.com/blog): Latest updates, tutorials, and industry insights
 
-## Examples
-
-- [Dashboard setup](https://acme.com/examples/dashboard): Step-by-step guide to configuring your first dashboard
-
 ## Optional
 
-- [Sitemap](https://acme.com/sitemap.xml): XML sitemap for crawling reference
-- [Changelog](https://acme.com/changelog): Product updates and release notes`;
+- [Sitemap](https://acme.com/sitemap.xml)
+- [Changelog](https://acme.com/changelog)`;
 
 const ExampleFile = () => (
   <section className="py-16 md:py-24">
