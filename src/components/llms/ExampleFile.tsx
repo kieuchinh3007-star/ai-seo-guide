@@ -1,20 +1,21 @@
-const EXAMPLE = `# Example AI crawler configuration
+const EXAMPLE = `# Acme Corp
 
-User-agent: GPTBot
-Allow: /
+> Acme Corp is an analytics platform that tracks website performance, SEO rankings, and AI search visibility across multiple channels.
 
-User-agent: ClaudeBot
-Allow: /
+## Docs
 
-User-agent: PerplexityBot
-Allow: /
+- [Quick start guide](https://acme.com/docs/quickstart): Getting started with Acme Corp in 5 minutes
+- [API reference](https://acme.com/docs/api): Complete REST API documentation
+- [Blog](https://acme.com/blog): Latest updates, tutorials, and industry insights
 
-Important Pages
-https://example.com/docs
-https://example.com/blog
+## Examples
 
-Sitemap
-https://example.com/sitemap.xml`;
+- [Dashboard setup](https://acme.com/examples/dashboard): Step-by-step guide to configuring your first dashboard
+
+## Optional
+
+- [Sitemap](https://acme.com/sitemap.xml): XML sitemap for crawling reference
+- [Changelog](https://acme.com/changelog): Product updates and release notes`;
 
 const ExampleFile = () => (
   <section className="py-16 md:py-24">
