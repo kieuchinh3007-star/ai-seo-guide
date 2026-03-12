@@ -11,14 +11,19 @@ interface ResultSectionProps {
 
 function generateLlmsTxt(data: GeneratorData): string {
   const lines: string[] = [];
-  const name = data.websiteName || new URL(data.websiteUrl).hostname;
+  let baseUrl = data.websiteUrl;
+  try {
+    const u = new URL(baseUrl);
+    baseUrl = u.origin;
+  } catch { /* keep as-is */ }
+
+  const name = data.websiteName || (() => { try { return new URL(data.websiteUrl).hostname; } catch { return data.websiteUrl; } })();
   lines.push(`# ${name}`);
   lines.push("");
 
-  if (data.websiteDescription) {
-    lines.push(`> ${data.websiteDescription}`);
-    lines.push("");
-  }
+  const desc = data.websiteDescription || `${name} official website.`;
+  lines.push(`> ${desc}`);
+  lines.push("");
 
   const pages = data.importantPages
     .split("\n")
@@ -39,14 +44,21 @@ function generateLlmsTxt(data: GeneratorData): string {
       }
     });
     lines.push("");
+  } else {
+    lines.push("## Docs");
+    lines.push("");
+    lines.push(`- [Homepage](${baseUrl})`);
+    lines.push("");
   }
 
+  lines.push("## Optional");
+  lines.push("");
   if (data.sitemapUrl) {
-    lines.push("## Optional");
-    lines.push("");
     lines.push(`- [Sitemap](${data.sitemapUrl}): XML sitemap for crawling reference`);
-    lines.push("");
+  } else {
+    lines.push(`- [Sitemap](${baseUrl}/sitemap.xml): XML sitemap for crawling reference`);
   }
+  lines.push("");
 
   return lines.join("\n");
 }
