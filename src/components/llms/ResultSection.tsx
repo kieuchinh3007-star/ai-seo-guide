@@ -20,7 +20,6 @@ function generateLlmsTxt(data: GeneratorData): string {
     lines.push("");
   }
 
-  // Important pages as docs section
   const pages = data.importantPages
     .split("\n")
     .map((p) => p.trim())
@@ -30,7 +29,6 @@ function generateLlmsTxt(data: GeneratorData): string {
     lines.push("## Docs");
     lines.push("");
     pages.forEach((p) => {
-      // Extract page name from URL path
       try {
         const url = new URL(p);
         const pageName = url.pathname.split("/").filter(Boolean).pop() || url.hostname;
@@ -54,7 +52,8 @@ function generateLlmsTxt(data: GeneratorData): string {
 }
 
 const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
-  const resultRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
+  const content = generateLlmsTxt(data);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
@@ -73,8 +72,6 @@ const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
     URL.revokeObjectURL(url);
     toast.success("File downloaded");
   };
-
-  const allCrawlerIds = ["gptbot", "claudebot", "perplexitybot", "google-extended", "common"];
 
   return (
     <div className="space-y-6">
@@ -97,28 +94,6 @@ const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
         <Button onClick={onRegenerate} variant="outline" className="gap-2">
           <RefreshCw className="h-4 w-4" /> Regenerate
         </Button>
-      </div>
-
-      {/* Crawler Summary */}
-      <div className="rounded-xl border border-border bg-card p-6 shadow-saas">
-        <h3 className="text-lg font-semibold text-card-foreground mb-4">AI Crawler Summary</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {allCrawlerIds.map((id) => {
-            const allowed = data.crawlers.includes(id) && data.allowAccess;
-            return (
-              <div key={id} className="flex items-center gap-2 text-sm">
-                {allowed ? (
-                  <Shield className="h-4 w-4 text-success flex-shrink-0" />
-                ) : (
-                  <ShieldX className="h-4 w-4 text-destructive flex-shrink-0" />
-                )}
-                <span className="text-card-foreground">
-                  {CRAWLER_DISPLAY[id]}: <strong>{allowed ? "Allowed" : "Blocked"}</strong>
-                </span>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
