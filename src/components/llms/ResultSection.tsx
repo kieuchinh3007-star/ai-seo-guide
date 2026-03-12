@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Download, RefreshCw, Check, Shield, ShieldAlert, ShieldX } from "lucide-react";
+import { Copy, Download, RefreshCw, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { GeneratorData } from "./GeneratorTool";
