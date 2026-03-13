@@ -198,8 +198,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
       </div>
 
       <p className="text-muted-foreground mb-6">
-        Nhập URL website — tool sẽ tự động quét sitemap và tạo file llms.txt
-        chuẩn cho bạn.
+        Enter your website URL — we'll automatically crawl your sitemap and generate an llms.txt file for you.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-3">
