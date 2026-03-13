@@ -106,10 +106,10 @@ const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">
-          Generated llms.txt
+          Kết quả file llms.txt
         </h2>
         <span className="text-sm text-muted-foreground">
-          {data.pages.length} trang được quét
+          Đã quét {data.pages.length} trang
         </span>
       </div>
 
