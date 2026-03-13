@@ -149,8 +149,8 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
     const urlsToProcess = discoveredUrls.slice(0, 50);
 
     setProgress({
-      step: `Tìm thấy ${totalFound} trang, đang xử lý...`,
-      detail: `Xử lý ${urlsToProcess.length} trang`,
+      step: `Found ${totalFound} pages, processing...`,
+      detail: `Processing ${urlsToProcess.length} pages`,
       pct: 50,
     });
 
