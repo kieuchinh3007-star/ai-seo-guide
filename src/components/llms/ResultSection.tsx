@@ -106,10 +106,10 @@ const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">
-          Generated llms.txt
+          Kết quả file llms.txt
         </h2>
         <span className="text-sm text-muted-foreground">
-          {data.pages.length} trang được quét
+          Đã quét {data.pages.length} trang
         </span>
       </div>
 
@@ -122,10 +122,10 @@ const ResultSection = ({ data, onRegenerate }: ResultSectionProps) => {
       <div className="flex flex-wrap gap-3">
         <Button onClick={handleCopy} variant="outline" className="gap-2">
           {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          {copied ? "Copied!" : "Copy llms.txt"}
+          {copied ? "Đã sao chép!" : "Sao chép"}
         </Button>
         <Button onClick={handleDownload} variant="outline" className="gap-2">
-          <Download className="h-4 w-4" /> Download file
+          <Download className="h-4 w-4" /> Tải file
         </Button>
         <Button onClick={onRegenerate} variant="outline" className="gap-2">
           <RefreshCw className="h-4 w-4" /> Quét lại

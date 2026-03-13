@@ -7,16 +7,16 @@ const CrossSell = () => (
       <div className="grid md:grid-cols-2 gap-12 items-center">
         <div className="space-y-6">
           <h2 className="text-3xl font-bold text-foreground">
-            Measure Traffic from AI Search Engines
+            Đo lường traffic từ AI Search Engines
           </h2>
           <p className="text-muted-foreground leading-relaxed">
-            After optimizing your website for AI crawlers, track how much traffic comes from AI search platforms.
+            Sau khi tối ưu website cho AI crawlers, hãy theo dõi lượng traffic đến từ các nền tảng AI search.
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            Letsmetrix helps you measure traffic from ChatGPT, Perplexity, and other AI sources.
+            Letsmetrix giúp bạn đo lường traffic từ ChatGPT, Perplexity và các nguồn AI khác.
           </p>
           <Button size="lg" className="gap-2">
-            <BarChart3 className="h-4 w-4" /> Start Using Letsmetrix
+            <BarChart3 className="h-4 w-4" /> Dùng thử Letsmetrix
           </Button>
         </div>
 
@@ -24,7 +24,7 @@ const CrossSell = () => (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-foreground">AI Search Traffic</span>
-              <span className="text-xs text-muted-foreground">Last 30 days</span>
+              <span className="text-xs text-muted-foreground">30 ngày gần nhất</span>
             </div>
             <div className="space-y-3">
               {[

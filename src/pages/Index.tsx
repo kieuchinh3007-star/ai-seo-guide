@@ -53,14 +53,14 @@ const Index = () => {
 
           <div className="text-center mb-10 space-y-4">
             <h1 className="text-3xl md:text-[44px] md:leading-tight font-extrabold text-foreground">
-              LLMs.txt Generator – Free Online Tool
+              LLMs.txt Generator – Công cụ tạo file miễn phí
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Paste your website URL — we'll scan your sitemap and generate a
-              ready-to-use llms.txt file instantly.
+              Nhập URL website — tool sẽ tự động quét sitemap và tạo file
+              llms.txt chuẩn cho bạn chỉ trong vài giây.
             </p>
             <p className="text-sm text-muted-foreground">
-              LLMs.txt giúp AI hiểu nội dung website tốt hơn và ưu tiên các trang quan trọng.
+              File llms.txt giúp các AI như ChatGPT, Perplexity, Claude hiểu và trích dẫn nội dung website của bạn tốt hơn.
             </p>
           </div>
 
@@ -87,7 +87,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-8 border-t border-border">
         <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Letsmetrix. All rights reserved.
+          © {new Date().getFullYear()} Letsmetrix. Bảo lưu mọi quyền.
         </div>
       </footer>
     </div>
