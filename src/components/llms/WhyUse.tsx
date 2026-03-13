@@ -1,17 +1,17 @@
 import { Bot, Lock, TrendingUp, Zap } from "lucide-react";
 
 const cards = [
-  { icon: Bot, title: "Optimize for AI Search", desc: "Help AI assistants understand and cite your content." },
-  { icon: Lock, title: "Control AI Crawling", desc: "Define how AI models access and use your data." },
-  { icon: TrendingUp, title: "Improve AI Discoverability", desc: "Increase chances of appearing in AI answers." },
-  { icon: Zap, title: "Instant File Creation", desc: "Generate a ready-to-use llms.txt file in seconds." },
+  { icon: Bot, title: "Tối ưu cho AI Search", desc: "Giúp các AI assistant hiểu và trích dẫn nội dung website của bạn." },
+  { icon: Lock, title: "Kiểm soát AI Crawling", desc: "Xác định cách các mô hình AI truy cập và sử dụng dữ liệu của bạn." },
+  { icon: TrendingUp, title: "Tăng khả năng hiển thị", desc: "Tăng cơ hội xuất hiện trong câu trả lời của AI search engines." },
+  { icon: Zap, title: "Tạo file tự động", desc: "Chỉ cần nhập URL, tool quét sitemap và tạo file llms.txt trong vài giây." },
 ];
 
 const WhyUse = () => (
   <section className="py-16 md:py-24 bg-card">
     <div className="container max-w-5xl">
       <h2 className="text-3xl font-bold text-foreground text-center mb-12">
-        Why Use LLMs.txt Generator?
+        Tại sao cần file LLMs.txt?
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((c, i) => (
