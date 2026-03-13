@@ -105,7 +105,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
   const handleGenerate = async () => {
     let inputUrl = url.trim();
     if (!inputUrl) {
-      setError("Vui lòng nhập URL website");
+      setError("Please enter a website URL");
       return;
     }
     if (!inputUrl.startsWith("http")) {
@@ -114,7 +114,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
     try {
       new URL(inputUrl);
     } catch {
-      setError("URL không hợp lệ");
+      setError("Invalid URL");
       return;
     }
 
@@ -129,11 +129,11 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
     }
 
     // Step 1: Fetch homepage meta
-    setProgress({ step: "Đang quét trang chủ...", detail: baseUrl, pct: 10 });
+    setProgress({ step: "Scanning homepage...", detail: baseUrl, pct: 10 });
     const homeMeta = await fetchPageMeta(baseUrl);
 
     // Step 2: Fetch sitemap
-    setProgress({ step: "Đang tìm sitemap...", detail: "", pct: 30 });
+    setProgress({ step: "Looking for sitemap...", detail: "", pct: 30 });
     let discoveredUrls = await fetchSitemap(baseUrl);
 
     // Deduplicate and limit
@@ -149,8 +149,8 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
     const urlsToProcess = discoveredUrls.slice(0, 50);
 
     setProgress({
-      step: `Tìm thấy ${totalFound} trang, đang xử lý...`,
-      detail: `Xử lý ${urlsToProcess.length} trang`,
+      step: `Found ${totalFound} pages, processing...`,
+      detail: `Processing ${urlsToProcess.length} pages`,
       pct: 50,
     });
 
@@ -163,14 +163,14 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
 
       if (i % 10 === 0) {
         setProgress({
-          step: `Đang xử lý trang ${i + 1}/${urlsToProcess.length}...`,
+          step: `Processing page ${i + 1}/${urlsToProcess.length}...`,
           detail: pageUrl,
           pct: 50 + Math.floor((i / urlsToProcess.length) * 40),
         });
       }
     }
 
-    setProgress({ step: "Đang tạo file llms.txt...", detail: "", pct: 95 });
+    setProgress({ step: "Generating llms.txt file...", detail: "", pct: 95 });
     await new Promise((r) => setTimeout(r, 300));
 
     const siteName =
@@ -198,8 +198,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
       </div>
 
       <p className="text-muted-foreground mb-6">
-        Nhập URL website — tool sẽ tự động quét sitemap và tạo file llms.txt
-        chuẩn cho bạn.
+        Enter your website URL — we'll automatically crawl your sitemap and generate an llms.txt file for you.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -221,7 +220,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
         >
           {isGenerating ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" /> Đang quét...
+              <Loader2 className="h-4 w-4 animate-spin" /> Scanning...
             </>
           ) : (
             <>

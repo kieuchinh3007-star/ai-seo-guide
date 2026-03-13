@@ -2,18 +2,18 @@ import { FileCheck, Bot, Search, Map, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tools = [
-  { icon: FileCheck, name: "LLMs.txt Validator", desc: "Kiểm tra file llms.txt có đúng chuẩn không." },
-  { icon: Bot, name: "Robots.txt Validator", desc: "Kiểm tra file robots.txt đã cấu hình đúng chưa." },
-  { icon: Search, name: "AI Crawler Checker", desc: "Xem AI bot nào có thể truy cập website của bạn." },
-  { icon: Map, name: "Sitemap Validator", desc: "Kiểm tra cấu trúc XML sitemap." },
-  { icon: Tag, name: "Meta Tag Analyzer", desc: "Phân tích meta tags để tối ưu SEO." },
+  { icon: FileCheck, name: "LLMs.txt Validator", desc: "Validate your llms.txt file for errors." },
+  { icon: Bot, name: "Robots.txt Validator", desc: "Check if your robots.txt is configured correctly." },
+  { icon: Search, name: "AI Crawler Checker", desc: "See which AI bots can access your site." },
+  { icon: Map, name: "Sitemap Validator", desc: "Validate your XML sitemap structure." },
+  { icon: Tag, name: "Meta Tag Analyzer", desc: "Analyze meta tags for SEO optimization." },
 ];
 
 const MoreTools = () => (
   <section className="py-16 md:py-24 bg-card">
     <div className="container max-w-5xl">
       <h2 className="text-3xl font-bold text-foreground text-center mb-12">
-        Các công cụ AI SEO khác
+        More AI SEO Tools
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {tools.map((t, i) => (
@@ -23,7 +23,7 @@ const MoreTools = () => (
             </div>
             <h3 className="font-semibold text-foreground">{t.name}</h3>
             <p className="text-sm text-muted-foreground">{t.desc}</p>
-            <Button variant="outline" size="sm">Dùng thử</Button>
+            <Button variant="outline" size="sm">Try tool</Button>
           </div>
         ))}
       </div>
