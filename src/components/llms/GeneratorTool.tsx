@@ -163,7 +163,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
 
       if (i % 10 === 0) {
         setProgress({
-          step: `Đang xử lý trang ${i + 1}/${urlsToProcess.length}...`,
+          step: `Processing page ${i + 1}/${urlsToProcess.length}...`,
           detail: pageUrl,
           pct: 50 + Math.floor((i / urlsToProcess.length) * 40),
         });
