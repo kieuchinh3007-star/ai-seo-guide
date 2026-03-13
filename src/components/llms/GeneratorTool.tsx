@@ -114,7 +114,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
     try {
       new URL(inputUrl);
     } catch {
-      setError("URL không hợp lệ");
+      setError("Invalid URL");
       return;
     }
 
