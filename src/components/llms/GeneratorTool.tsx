@@ -170,7 +170,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
       }
     }
 
-    setProgress({ step: "Đang tạo file llms.txt...", detail: "", pct: 95 });
+    setProgress({ step: "Generating llms.txt file...", detail: "", pct: 95 });
     await new Promise((r) => setTimeout(r, 300));
 
     const siteName =
