@@ -133,7 +133,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
     const homeMeta = await fetchPageMeta(baseUrl);
 
     // Step 2: Fetch sitemap
-    setProgress({ step: "Đang tìm sitemap...", detail: "", pct: 30 });
+    setProgress({ step: "Looking for sitemap...", detail: "", pct: 30 });
     let discoveredUrls = await fetchSitemap(baseUrl);
 
     // Deduplicate and limit
