@@ -86,7 +86,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-8 border-t border-border">
         <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Letsmetrix. Bảo lưu mọi quyền.
+          © {new Date().getFullYear()} Letsmetrix. All rights reserved.
         </div>
       </footer>
     </div>

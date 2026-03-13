@@ -1,17 +1,17 @@
 import { Globe, Search, FileText, Upload } from "lucide-react";
 
 const steps = [
-  { icon: Globe, title: "Bước 1", desc: "Nhập URL website của bạn vào ô input." },
-  { icon: Search, title: "Bước 2", desc: "Tool tự động quét sitemap và thu thập toàn bộ URL trên website." },
-  { icon: FileText, title: "Bước 3", desc: "File llms.txt được tạo tự động với danh sách trang đã phân loại." },
-  { icon: Upload, title: "Bước 4", desc: "Tải file và upload lên thư mục gốc website (domain.com/llms.txt)." },
+  { icon: Globe, title: "Step 1", desc: "Enter your website URL in the input field." },
+  { icon: Search, title: "Step 2", desc: "The tool automatically crawls your sitemap and discovers all pages." },
+  { icon: FileText, title: "Step 3", desc: "An llms.txt file is generated with categorized page listings." },
+  { icon: Upload, title: "Step 4", desc: "Download the file and upload it to your website root (domain.com/llms.txt)." },
 ];
 
 const HowToUse = () => (
   <section className="py-16 md:py-24">
     <div className="container max-w-5xl">
       <h2 className="text-3xl font-bold text-foreground text-center mb-12">
-        Cách sử dụng LLMs.txt Generator
+        How to Use LLMs.txt Generator
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {steps.map((s, i) => (

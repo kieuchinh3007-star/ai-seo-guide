@@ -7,24 +7,24 @@ import {
 
 const faqs = [
   {
-    q: "LLMs.txt Generator là gì?",
-    a: "Là công cụ tự động tạo file llms.txt bằng cách quét sitemap website của bạn, giúp các AI crawler hiểu và trích dẫn nội dung website tốt hơn.",
+    q: "What is an llms.txt generator?",
+    a: "An llms.txt generator automatically creates a configuration file by crawling your website's sitemap, helping AI crawlers better understand and cite your content.",
   },
   {
-    q: "Upload file llms.txt ở đâu?",
-    a: "Upload file vào thư mục gốc của website, ví dụ: example.com/llms.txt.",
+    q: "Where should I upload the llms.txt file?",
+    a: "Upload it to the root directory of your website (e.g., example.com/llms.txt).",
   },
   {
-    q: "Tại sao website cần file llms.txt?",
-    a: "File llms.txt giúp các AI search engine như ChatGPT, Perplexity, Claude xác định các trang quan trọng, từ đó tăng khả năng hiển thị trong câu trả lời AI.",
+    q: "Why do websites need an llms.txt file?",
+    a: "It helps AI search engines like ChatGPT, Perplexity, and Claude identify your most important pages, increasing your visibility in AI-generated answers.",
   },
   {
-    q: "Tool này có miễn phí không?",
-    a: "Có. Tool hoàn toàn miễn phí và không cần đăng ký tài khoản.",
+    q: "Is this LLMs.txt generator free?",
+    a: "Yes. The tool is completely free and requires no signup.",
   },
   {
-    q: "Tool quét website như thế nào?",
-    a: "Tool tự động tìm và phân tích sitemap.xml của website, thu thập tất cả URL và phân loại thành các nhóm Docs và Optional dựa trên cấu trúc đường dẫn.",
+    q: "How does the tool crawl my website?",
+    a: "The tool automatically finds and parses your website's sitemap.xml, collects all URLs, and categorizes them into Docs and Optional sections based on URL structure.",
   },
 ];
 
@@ -32,7 +32,7 @@ const FaqSection = () => (
   <section className="py-16 md:py-24">
     <div className="container max-w-3xl">
       <h2 className="text-3xl font-bold text-foreground text-center mb-12">
-        Câu hỏi thường gặp
+        Frequently Asked Questions
       </h2>
       <Accordion type="single" collapsible className="space-y-3">
         {faqs.map((faq, i) => (
