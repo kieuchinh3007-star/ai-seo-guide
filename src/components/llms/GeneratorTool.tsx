@@ -129,7 +129,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
     }
 
     // Step 1: Fetch homepage meta
-    setProgress({ step: "Đang quét trang chủ...", detail: baseUrl, pct: 10 });
+    setProgress({ step: "Scanning homepage...", detail: baseUrl, pct: 10 });
     const homeMeta = await fetchPageMeta(baseUrl);
 
     // Step 2: Fetch sitemap
