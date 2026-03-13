@@ -105,7 +105,7 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
   const handleGenerate = async () => {
     let inputUrl = url.trim();
     if (!inputUrl) {
-      setError("Vui lòng nhập URL website");
+      setError("Please enter a website URL");
       return;
     }
     if (!inputUrl.startsWith("http")) {
