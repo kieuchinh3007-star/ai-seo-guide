@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Globe, Loader2, Search, XCircle } from "lucide-react";
+import { Globe, Search, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -15,6 +15,7 @@ interface GeneratorToolProps {
 }
 
 const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+const MAX_PAGES = 1000;
 
 function fetchWithTimeout(
   url: string,
@@ -23,108 +24,191 @@ function fetchWithTimeout(
 ): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  // Link external abort signal
   if (signal) {
     signal.addEventListener("abort", () => controller.abort());
   }
-
   return fetch(url, { signal: controller.signal }).finally(() =>
     clearTimeout(timer)
   );
 }
 
-async function fetchSitemap(
+/** Check robots.txt for Sitemap: directives */
+async function getSitemapUrlsFromRobots(
   baseUrl: string,
   signal?: AbortSignal
 ): Promise<string[]> {
-  const sitemapUrls = [
-    `${baseUrl}/sitemap.xml`,
-    `${baseUrl}/sitemap_index.xml`,
-    `${baseUrl}/sitemap`,
-  ];
-
-  for (const sitemapUrl of sitemapUrls) {
-    try {
-      const res = await fetchWithTimeout(
-        CORS_PROXY + encodeURIComponent(sitemapUrl),
-        8000,
-        signal
-      );
-      if (!res.ok) continue;
-      const text = await res.text();
-      if (!text.includes("<url") && !text.includes("<sitemap")) continue;
-
-      const sitemapMatches = [
-        ...text.matchAll(/<loc>\s*(.*?)\s*<\/loc>/gi),
-      ];
-      const urls: string[] = [];
-
-      if (text.includes("<sitemapindex") || text.includes("<sitemap>")) {
-        // Fetch ALL child sitemaps in parallel (batch of 10)
-        const childUrls = sitemapMatches.map((m) => m[1]);
-        for (let i = 0; i < childUrls.length; i += 10) {
-          if (signal?.aborted) break;
-          const batch = childUrls.slice(i, i + 10);
-          const childResults = await Promise.allSettled(
-            batch.map(async (childUrl) => {
-              const childRes = await fetchWithTimeout(
-                CORS_PROXY + encodeURIComponent(childUrl),
-                8000,
-                signal
-              );
-              if (!childRes.ok) return [];
-              const childText = await childRes.text();
-              return [
-                ...childText.matchAll(/<loc>\s*(.*?)\s*<\/loc>/gi),
-              ].map((m) => m[1]);
-            })
-          );
-          for (const r of childResults) {
-            if (r.status === "fulfilled") urls.push(...r.value);
-          }
-        }
-      } else {
-        sitemapMatches.forEach((m) => urls.push(m[1]));
-      }
-
-      if (urls.length > 0) return urls;
-    } catch {
-      /* try next */
-    }
-  }
-  return [];
-}
-
-async function fetchPageTitle(
-  url: string,
-  signal?: AbortSignal
-): Promise<string> {
   try {
     const res = await fetchWithTimeout(
-      CORS_PROXY + encodeURIComponent(url),
+      CORS_PROXY + encodeURIComponent(`${baseUrl}/robots.txt`),
       6000,
       signal
     );
-    if (!res.ok) return "";
-    const html = await res.text();
-    const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/is);
-    return titleMatch?.[1]?.replace(/\s+/g, " ").trim() || "";
+    if (!res.ok) return [];
+    const text = await res.text();
+    const matches = [...text.matchAll(/^Sitemap:\s*(.+)$/gim)];
+    return matches.map((m) => m[1].trim()).filter(Boolean);
   } catch {
-    return "";
+    return [];
   }
+}
+
+/** Parse URLs from a sitemap XML string */
+function extractLocsFromXml(text: string): string[] {
+  return [...text.matchAll(/<loc>\s*(.*?)\s*<\/loc>/gi)].map((m) => m[1]);
+}
+
+/** Fetch and parse a single sitemap, recursing into sitemap indexes */
+async function parseSitemap(
+  sitemapUrl: string,
+  signal?: AbortSignal
+): Promise<string[]> {
+  try {
+    const res = await fetchWithTimeout(
+      CORS_PROXY + encodeURIComponent(sitemapUrl),
+      10000,
+      signal
+    );
+    if (!res.ok) return [];
+    const text = await res.text();
+    if (!text.includes("<loc")) return [];
+
+    const locs = extractLocsFromXml(text);
+
+    // If it's a sitemap index, fetch all child sitemaps
+    if (text.includes("<sitemapindex") || text.includes("<sitemap>")) {
+      const urls: string[] = [];
+      // Fetch child sitemaps in parallel batches of 15
+      for (let i = 0; i < locs.length; i += 15) {
+        if (signal?.aborted) break;
+        const batch = locs.slice(i, i + 15);
+        const results = await Promise.allSettled(
+          batch.map(async (childUrl) => {
+            const childRes = await fetchWithTimeout(
+              CORS_PROXY + encodeURIComponent(childUrl),
+              10000,
+              signal
+            );
+            if (!childRes.ok) return [];
+            const childText = await childRes.text();
+            return extractLocsFromXml(childText);
+          })
+        );
+        for (const r of results) {
+          if (r.status === "fulfilled") urls.push(...r.value);
+        }
+      }
+      return urls;
+    }
+
+    return locs;
+  } catch {
+    return [];
+  }
+}
+
+/** Main sitemap discovery: robots.txt → common sitemap paths */
+async function discoverAllUrls(
+  baseUrl: string,
+  signal?: AbortSignal,
+  onProgress?: (msg: string) => void
+): Promise<string[]> {
+  const allUrls = new Set<string>();
+
+  // 1. Check robots.txt for sitemap URLs
+  onProgress?.("Checking robots.txt...");
+  const robotsSitemaps = await getSitemapUrlsFromRobots(baseUrl, signal);
+  if (signal?.aborted) return [];
+
+  // 2. Build list of sitemaps to try
+  const sitemapsToTry = new Set<string>(robotsSitemaps);
+  sitemapsToTry.add(`${baseUrl}/sitemap.xml`);
+  sitemapsToTry.add(`${baseUrl}/sitemap_index.xml`);
+  sitemapsToTry.add(`${baseUrl}/sitemap`);
+  // Common CMS sitemap patterns
+  sitemapsToTry.add(`${baseUrl}/sitemap-index.xml`);
+  sitemapsToTry.add(`${baseUrl}/wp-sitemap.xml`);
+  sitemapsToTry.add(`${baseUrl}/post-sitemap.xml`);
+  sitemapsToTry.add(`${baseUrl}/page-sitemap.xml`);
+  sitemapsToTry.add(`${baseUrl}/sitemap/sitemap-index.xml`);
+
+  // 3. Fetch all sitemaps in parallel batches
+  const sitemapList = [...sitemapsToTry];
+  onProgress?.(`Scanning ${sitemapList.length} sitemap locations...`);
+
+  // Fetch in parallel batches of 5
+  for (let i = 0; i < sitemapList.length; i += 5) {
+    if (signal?.aborted) break;
+    const batch = sitemapList.slice(i, i + 5);
+    const results = await Promise.allSettled(
+      batch.map((url) => parseSitemap(url, signal))
+    );
+    for (const r of results) {
+      if (r.status === "fulfilled") {
+        r.value.forEach((u) => allUrls.add(u));
+      }
+    }
+    if (allUrls.size > 0) {
+      onProgress?.(`Found ${allUrls.size} pages so far...`);
+    }
+  }
+
+  // 4. Fallback: crawl internal links from homepage
+  if (allUrls.size === 0 && !signal?.aborted) {
+    onProgress?.("No sitemap found, crawling homepage links...");
+    try {
+      const res = await fetchWithTimeout(
+        CORS_PROXY + encodeURIComponent(baseUrl),
+        10000,
+        signal
+      );
+      if (res.ok) {
+        const html = await res.text();
+        const host = new URL(baseUrl).hostname;
+        // Extract all internal links
+        const linkMatches = [
+          ...html.matchAll(/href=["'](https?:\/\/[^"']+)["']/gi),
+          ...html.matchAll(/href=["'](\/[^"']+)["']/gi),
+        ];
+        for (const m of linkMatches) {
+          let href = m[1];
+          if (href.startsWith("/")) {
+            href = baseUrl + href;
+          }
+          try {
+            const u = new URL(href);
+            if (
+              u.hostname === host &&
+              !u.pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|pdf|zip)$/i)
+            ) {
+              allUrls.add(u.origin + u.pathname);
+            }
+          } catch {
+            /* skip */
+          }
+        }
+        onProgress?.(`Found ${allUrls.size} links from homepage`);
+      }
+    } catch {
+      /* fallback failed */
+    }
+  }
+
+  return [...allUrls];
 }
 
 function urlToTitle(url: string): string {
   try {
     const u = new URL(url);
     const parts = u.pathname.split("/").filter(Boolean);
-    if (parts.length === 0) return u.hostname;
-    const last = parts[parts.length - 1];
-    return last
-      .replace(/[-_]/g, " ")
-      .replace(/\.\w+$/, "")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+    if (parts.length === 0) return "Home";
+    return parts
+      .map((p) =>
+        p
+          .replace(/[-_]/g, " ")
+          .replace(/\.\w+$/, "")
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+      )
+      .join(" › ");
   } catch {
     return url;
   }
@@ -204,73 +288,53 @@ const GeneratorTool = ({ onGenerate }: GeneratorToolProps) => {
 
     try {
       // Step 1: Fetch homepage meta
-      setProgress({ step: "Scanning homepage...", detail: baseUrl, pct: 10 });
+      setProgress({ step: "Scanning homepage...", detail: baseUrl, pct: 5 });
       const homeMeta = await fetchPageMeta(baseUrl, signal);
-
       if (signal.aborted) return;
 
-      // Step 2: Fetch sitemap
-      setProgress({ step: "Looking for sitemap...", detail: "", pct: 20 });
-      let discoveredUrls = await fetchSitemap(baseUrl, signal);
-
+      // Step 2: Discover all URLs
+      setProgress({ step: "Discovering pages...", detail: "", pct: 15 });
+      const discoveredUrls = await discoverAllUrls(baseUrl, signal, (msg) => {
+        setProgress((prev) => ({ ...prev, detail: msg }));
+      });
       if (signal.aborted) return;
 
-      // Deduplicate
-      discoveredUrls = [...new Set(discoveredUrls)];
-      const totalFound = discoveredUrls.length;
+      // Deduplicate & filter same-origin
+      const host = new URL(baseUrl).hostname;
+      const uniqueUrls = [
+        ...new Set(
+          discoveredUrls.filter((u) => {
+            try {
+              return new URL(u).hostname.includes(host);
+            } catch {
+              return false;
+            }
+          })
+        ),
+      ];
+
+      const totalFound = uniqueUrls.length;
 
       if (totalFound === 0) {
-        discoveredUrls = [baseUrl];
+        uniqueUrls.push(baseUrl);
       }
 
-      // Process up to 500 pages
-      const urlsToProcess = discoveredUrls.slice(0, 500);
+      // Limit to MAX_PAGES
+      const urlsToProcess = uniqueUrls.slice(0, MAX_PAGES);
 
       setProgress({
-        step: `Found ${totalFound} pages, fetching titles...`,
-        detail: `Processing ${urlsToProcess.length} pages`,
-        pct: 35,
+        step: `Found ${totalFound} pages, building file...`,
+        detail: `Using ${urlsToProcess.length} pages`,
+        pct: 80,
       });
 
-      // Step 3: Fetch real page titles in parallel batches of 20
-      const pages: { url: string; title: string }[] = [];
-      const BATCH_SIZE = 20;
+      // Step 3: Build page list with URL-derived titles (fast, no fetching)
+      const pages = urlsToProcess.map((pageUrl) => ({
+        url: pageUrl,
+        title: urlToTitle(pageUrl),
+      }));
 
-      for (let i = 0; i < urlsToProcess.length; i += BATCH_SIZE) {
-        if (signal.aborted) return;
-
-        const batch = urlsToProcess.slice(i, i + BATCH_SIZE);
-        const batchResults = await Promise.allSettled(
-          batch.map(async (pageUrl) => {
-            const fetchedTitle = await fetchPageTitle(pageUrl, signal);
-            return {
-              url: pageUrl,
-              title: fetchedTitle || urlToTitle(pageUrl),
-            };
-          })
-        );
-
-        for (const r of batchResults) {
-          if (r.status === "fulfilled") {
-            pages.push(r.value);
-          }
-        }
-
-        const processed = Math.min(i + BATCH_SIZE, urlsToProcess.length);
-        setProgress({
-          step: `Fetching titles... ${processed}/${urlsToProcess.length}`,
-          detail: batch[0],
-          pct: 35 + Math.floor((processed / urlsToProcess.length) * 55),
-        });
-      }
-
-      if (signal.aborted) return;
-
-      setProgress({
-        step: "Generating llms.txt file...",
-        detail: "",
-        pct: 95,
-      });
+      setProgress({ step: "Generating llms.txt file...", detail: "", pct: 95 });
       await new Promise((r) => setTimeout(r, 200));
 
       const siteName =
