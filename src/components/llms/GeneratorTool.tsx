@@ -16,6 +16,12 @@ interface GeneratorToolProps {
 
 const CORS_PROXY = "https://api.allorigins.win/raw?url=";
 
+function fetchWithTimeout(url: string, timeoutMs = 8000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
 async function fetchSitemap(baseUrl: string): Promise<string[]> {
   const sitemapUrls = [
     `${baseUrl}/sitemap.xml`,
@@ -25,27 +31,26 @@ async function fetchSitemap(baseUrl: string): Promise<string[]> {
 
   for (const sitemapUrl of sitemapUrls) {
     try {
-      const res = await fetch(CORS_PROXY + encodeURIComponent(sitemapUrl));
+      const res = await fetchWithTimeout(CORS_PROXY + encodeURIComponent(sitemapUrl));
       if (!res.ok) continue;
       const text = await res.text();
       if (!text.includes("<url") && !text.includes("<sitemap")) continue;
 
-      // Parse sitemap index (contains nested sitemaps)
       const sitemapMatches = [...text.matchAll(/<loc>\s*(.*?)\s*<\/loc>/gi)];
       const urls: string[] = [];
 
       if (text.includes("<sitemapindex") || text.includes("<sitemap>")) {
-        // It's a sitemap index, fetch each child sitemap
-        for (const match of sitemapMatches.slice(0, 5)) {
-          try {
-            const childRes = await fetch(CORS_PROXY + encodeURIComponent(match[1]));
-            if (!childRes.ok) continue;
+        // Fetch child sitemaps in parallel (max 5)
+        const childResults = await Promise.allSettled(
+          sitemapMatches.slice(0, 5).map(async (match) => {
+            const childRes = await fetchWithTimeout(CORS_PROXY + encodeURIComponent(match[1]));
+            if (!childRes.ok) return [];
             const childText = await childRes.text();
-            const childUrls = [...childText.matchAll(/<loc>\s*(.*?)\s*<\/loc>/gi)];
-            childUrls.forEach((m) => urls.push(m[1]));
-          } catch {
-            /* skip */
-          }
+            return [...childText.matchAll(/<loc>\s*(.*?)\s*<\/loc>/gi)].map((m) => m[1]);
+          })
+        );
+        for (const r of childResults) {
+          if (r.status === "fulfilled") urls.push(...r.value);
         }
       } else {
         sitemapMatches.forEach((m) => urls.push(m[1]));
