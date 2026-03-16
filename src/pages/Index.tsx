@@ -58,9 +58,6 @@ const Index = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Enter your website URL — we'll automatically crawl your sitemap and generate a ready-to-use llms.txt file in seconds.
             </p>
-            <p className="text-sm text-muted-foreground">
-              An llms.txt file helps AI models like ChatGPT, Perplexity, and Claude better understand and cite your website content.
-            </p>
           </div>
 
           <GeneratorTool onGenerate={handleGenerate} />
